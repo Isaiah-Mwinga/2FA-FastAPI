@@ -35,3 +35,27 @@ class TwoFactorAuth:
         self._secret_key = secret_key
         self._totp = TOTP(self._secret_key)
         self._qr_cache: Optional[bytes] = None
+
+    @property
+    def totp(self) -> TOTP:
+        return self._totp
+
+    @property
+    def secret_key(self) -> str:
+        return self._secret_key
+
+    @staticmethod
+    def _generate_secret_key() -> str:
+        secret_bytes = secrets.token_bytes(20)
+        secret_key = base64.b32encode(secret_bytes).decode('utf-8')
+        return secret_key
+
+    @staticmethod
+    def get_or_create_secret_key(db, user_id: str) -> str:
+        db_user = db.query(User).filter(User.user_id == user_id).first()
+        if db_user:
+            return db_user.secret_key
+        secret_key = TwoFactorAuth._generate_secret_key()
+        db.add(User(user_id=user_id, secret_key=secret_key))
+        db.commit()
+        return secret_key        
