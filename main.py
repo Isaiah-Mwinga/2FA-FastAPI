@@ -24,3 +24,14 @@ class User(Base):
     __tablename__ = 'users'
     user_id = Column(String, primary_key=True, index=True)
     secret_key = Column(String, index=True)
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+class TwoFactorAuth:
+    def __init__(self, user_id: str, secret_key: str):
+        self._user_id = user_id
+        self._secret_key = secret_key
+        self._totp = TOTP(self._secret_key)
+        self._qr_cache: Optional[bytes] = None
