@@ -59,3 +59,14 @@ class TwoFactorAuth:
         db.add(User(user_id=user_id, secret_key=secret_key))
         db.commit()
         return secret_key        
+
+    def _create_qr_code(self) -> bytes:
+        uri = self.totp.provisioning_uri(
+            name=self._user_id,
+            issuer_name='2FA',
+        )
+        img = qrcode.make(uri)
+        img_byte_array = io.BytesIO()
+        img.save(img_byte_array, format='PNG')
+        img_byte_array.seek(0)
+        return img_byte_array.getvalue()    
