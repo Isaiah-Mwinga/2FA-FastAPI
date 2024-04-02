@@ -69,4 +69,10 @@ class TwoFactorAuth:
         img_byte_array = io.BytesIO()
         img.save(img_byte_array, format='PNG')
         img_byte_array.seek(0)
-        return img_byte_array.getvalue()    
+        return img_byte_array.getvalue()  
+
+    @property  
+    def qr_code(self) -> bytes:
+        if self._qr_cache is None:
+            self._qr_cache = self._create_qr_code()
+        return self._qr_cache
