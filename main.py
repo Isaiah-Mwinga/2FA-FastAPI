@@ -79,3 +79,14 @@ class TwoFactorAuth:
 
     def verify_totp_code(self, totp_code: str) -> bool:
         return self.totp.verify(totp_code)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def get_two_factor_auth(user_id: str, db = Depends(get_db)) -> TwoFactorAuth:
+    secret_key = TwoFactorAuth.get_or_create_secret_key(db, user_id)
+    return TwoFactorAuth(user_id, secret_key)
