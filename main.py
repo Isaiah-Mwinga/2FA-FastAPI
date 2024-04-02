@@ -76,3 +76,6 @@ class TwoFactorAuth:
         if self._qr_cache is None:
             self._qr_cache = self._create_qr_code()
         return self._qr_cache
+
+    def verify_totp_code(self, totp_code: str) -> bool:
+        return self.totp.verify(totp_code)
